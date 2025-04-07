@@ -22,12 +22,13 @@ locals {
 terraform {
   required_version = ">= 1.0"
 
-    #add the following to remove TFlint aws required providers error
-    required_providers {
+  #add the following to remove TFlint aws required providers error
+  required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 4.0"
     }
+  }
 }
 
 resource "aws_s3_bucket" "s3_tf" {

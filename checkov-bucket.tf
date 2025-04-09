@@ -14,6 +14,12 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 }
 
 #-- encrypt
+resource "aws_kms_key" "mykey" {
+  description             = "KMS key for S3 bucket encryption"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "good_sse_1" {
   bucket = aws_s3_bucket.s3_tf.bucket
 

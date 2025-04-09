@@ -25,7 +25,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "good_sse_1" {
   }
 }
 
-#-- public block
+#-- public access block
 resource "aws_s3_bucket_public_access_block" "access_good_1" {
   bucket = aws_s3_bucket.s3_tf.id
 
@@ -43,6 +43,41 @@ resource "aws_s3_bucket_versioning" "s3_version" {
 }
 
 #-- cross region
+resource "aws_s3_bucket_versioning" "east" {
+  bucket = aws_s3_bucket.s3_tf.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "west" {
+  provider = aws.west
+  bucket   = "${local.name_prefix}-s3-west-${local.account_id}"
+}
+
+resource "aws_s3_bucket_versioning" "west" {
+  provider = aws.west
+
+  bucket = aws_s3_bucket.west.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_replication_configuration" "east_to_west" {
+  depends_on = [aws_s3_bucket_versioning.east]
+  role       = aws_iam_role.east_replication.arn
+  bucket     = aws_s3_bucket.s3_tf.id
+
+  rule {
+    status = "Enabled"
+
+    destination {
+      bucket        = aws_s3_bucket.west.arn
+      storage_class = "STANDARD"
+    }
+  }
+}
 
 
 #-- logging
